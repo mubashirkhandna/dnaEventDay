@@ -54,8 +54,7 @@ export default function PitchDeckViewer({ url }: PitchDeckViewerProps) {
     if (!rawUrl) return '';
     const match = rawUrl.match(/[?&]id=([^&,\s]+)/);
     if (match) {
-      const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:3001';
-      return `${apiBase}/api/proxy/pdf?id=${match[1]}`;
+      return `/api/proxy/pdf?id=${match[1]}`;
     }
     return rawUrl;
   };

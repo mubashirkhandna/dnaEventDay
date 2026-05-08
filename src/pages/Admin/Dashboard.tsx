@@ -138,9 +138,8 @@ export default function AdminDashboard() {
     setIsSavingOrder(true);
     try {
       const orderedIds = newTeams.map((t) => t.id);
-      const API_URL = (import.meta.env.VITE_API_URL as string) || 'http://localhost:3001';
       const token = getToken('admin');
-      const res = await fetch(`${API_URL}/api/admin/teams/reorder`, {
+      const res = await fetch(`/api/admin/teams/reorder`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
