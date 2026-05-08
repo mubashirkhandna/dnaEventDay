@@ -4,16 +4,15 @@ import {
   adminPatchSettings, adminStartPitch, adminStopPitch, adminRestartPitch,
   adminResetTeam, adminStartQuiz, adminResetQuiz, adminGetScores, adminPatchScore,
   adminGetScoreRequests, adminPatchScoreRequest, adminReset, adminCreateJudge,
-  JudgeScoreRecord, ScoreRequestRecord, getToken, Team,
+  JudgeScoreRecord, ScoreRequestRecord, getToken,
 } from '../../lib/api';
 import { withToast, toast } from '../../lib/toast';
 import {
   BarChart, Settings, Play, Users, Trophy, ChevronRight,
   FastForward, Timer, AlertTriangle, Loader2, UserPlus, X, GripVertical,
-  Presentation, ExternalLink,
+  ExternalLink,
 } from 'lucide-react';
 import { motion, AnimatePresence, Reorder } from 'framer-motion';
-import PitchDeckViewer from '../../components/PitchDeckViewer';
 
 type Tab = 'dashboard' | 'judgement' | 'quiz' | 'audience' | 'judges';
 
@@ -76,8 +75,6 @@ export default function AdminDashboard() {
   const [isSavingOrder, setIsSavingOrder] = useState(false);
   const [hasUnsavedOrder, setHasUnsavedOrder] = useState(false);
 
-  // Pitch deck preview modal
-  const [deckTeam, setDeckTeam] = useState<Team | null>(null);
 
   useEffect(() => {
     const sync = () => setState(getStore());
@@ -367,13 +364,27 @@ export default function AdminDashboard() {
 
                   {/* Right: action buttons */}
                   <div className="flex items-center gap-2 shrink-0 ml-8 sm:ml-0">
-                    {(team.pdfUrl || team.pptxUrl) && (
-                      <button
-                        onClick={(e) => { e.stopPropagation(); setDeckTeam(team); }}
+                    {team.pdfUrl && (
+                      <a
+                        href={team.pdfUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
                         className="px-2.5 py-1.5 rounded-lg text-xs font-bold bg-void-800 text-slate-300 hover:text-white border border-white/10 hover:border-white/20 transition-colors flex items-center gap-1"
                       >
-                        <Presentation className="w-3 h-3" /> View Deck
-                      </button>
+                        <ExternalLink className="w-3 h-3" /> Drive
+                      </a>
+                    )}
+                    {team.pptxUrl && (
+                      <a
+                        href={team.pptxUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="px-2.5 py-1.5 rounded-lg text-xs font-bold bg-violet-500/20 text-violet-400 hover:bg-violet-500/30 border border-violet-500/30 transition-colors flex items-center gap-1"
+                      >
+                        <ExternalLink className="w-3 h-3" /> Canva
+                      </a>
                     )}
                     {team.status === 'presenting' && pitchTimeLeft > 0 && (
                       <div className="flex items-center gap-1.5 bg-void-950 px-2.5 py-1 rounded-lg border border-brand-500/30">
@@ -848,76 +859,6 @@ export default function AdminDashboard() {
           </AnimatePresence>
         </div>
       </div>
-
-      {/* Pitch Deck Preview Modal */}
-      {deckTeam && (
-        <div className="fixed inset-0 z-50 bg-void-950/95 backdrop-blur-sm flex flex-col" onClick={() => setDeckTeam(null)}>
-          <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 shrink-0" onClick={(e) => e.stopPropagation()}>
-            <div>
-              <h2 className="text-lg font-bold text-white">{deckTeam.name}</h2>
-              <p className="text-xs text-slate-400 font-mono">{deckTeam.theme}</p>
-            </div>
-            <div className="flex items-center gap-3">
-              {deckTeam.pptxUrl && (
-                <a
-                  href={deckTeam.pptxUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-4 py-2 bg-violet-500/20 text-violet-300 border border-violet-500/30 rounded-xl text-sm font-bold hover:bg-violet-500/30 transition-colors"
-                >
-                  <ExternalLink className="w-4 h-4" /> Open in Canva
-                </a>
-              )}
-              {deckTeam.pdfUrl && (
-                <a
-                  href={deckTeam.pdfUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-4 py-2 bg-void-800 text-slate-300 border border-white/10 rounded-xl text-sm font-bold hover:bg-void-700 transition-colors"
-                >
-                  <ExternalLink className="w-4 h-4" /> Open in Drive
-                </a>
-              )}
-              <button onClick={() => setDeckTeam(null)} className="p-2 text-slate-400 hover:text-white transition-colors">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-          <div className="flex-1 overflow-auto" onClick={(e) => e.stopPropagation()}>
-            {deckTeam.pptxUrl?.includes('canva.link') ? (
-              <div className="flex flex-col items-center justify-center h-full gap-6">
-                <div className="w-20 h-20 rounded-2xl bg-violet-500/20 border border-violet-500/30 flex items-center justify-center">
-                  <ExternalLink className="w-10 h-10 text-violet-400" />
-                </div>
-                <div className="text-center">
-                  <p className="text-white font-bold text-xl mb-2">Canva Presentation</p>
-                  <p className="text-slate-400 mb-6">This team submitted their pitch deck via Canva</p>
-                  <a
-                    href={deckTeam.pptxUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-8 py-4 bg-violet-500 text-white font-bold rounded-2xl hover:bg-violet-400 transition-colors text-lg"
-                  >
-                    <ExternalLink className="w-5 h-5" /> Open Canva Presentation
-                  </a>
-                  {deckTeam.pdfUrl && (
-                    <p className="text-slate-500 text-sm mt-6">
-                      PDF also available —{' '}
-                      <a href={deckTeam.pdfUrl} target="_blank" rel="noopener noreferrer" className="text-brand-400 hover:underline">
-                        view on Google Drive
-                      </a>
-                    </p>
-                  )}
-                </div>
-              </div>
-            ) : deckTeam.pdfUrl ? (
-              <div className="max-w-5xl mx-auto w-full py-6 px-4">
-                <PitchDeckViewer url={deckTeam.pdfUrl} />
-              </div>
-            ) : null}
-          </div>
-        </div>
-      )}
 
       {/* Create Judge Modal */}
       {showJudgeModal && (
