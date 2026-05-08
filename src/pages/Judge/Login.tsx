@@ -1,26 +1,35 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Lock } from 'lucide-react';
+import { Lock, Loader2 } from 'lucide-react';
 import { getStore } from '../../lib/store';
+import { judgeLogin, setToken } from '../../lib/api';
+import { toast } from '../../lib/toast';
 import ComingSoon from '../../components/ComingSoon';
 
 export default function JudgeLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const state = getStore();
+  if (!state.portalsEnabled.judge) return <ComingSoon title="Judge" />;
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email && password) {
-      localStorage.setItem('judge_email', email);
+    setLoading(true);
+    try {
+      const res = await judgeLogin(email, password);
+      setToken('judge', res.token);
+      localStorage.setItem('judge_email', res.email);
+      toast.success(`Welcome, ${res.name || res.email}`);
       navigate('/judge/dashboard');
+    } catch (err: unknown) {
+      toast.error((err as Error).message || 'Login failed');
+    } finally {
+      setLoading(false);
     }
   };
-
-  const state = getStore();
-  if (!state.portalsEnabled.judge) {
-    return <ComingSoon title="Judge" />;
-  }
 
   return (
     <div className="min-h-[calc(100vh-5rem)] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -37,31 +46,34 @@ export default function JudgeLogin() {
         <form onSubmit={handleLogin} className="space-y-6 relative z-10">
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-2">Email Address</label>
-            <input 
-              type="email" 
+            <input
+              type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-void-950/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors"
+              disabled={loading}
+              className="w-full bg-void-950/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 transition-colors disabled:opacity-50"
               placeholder="judge@dnahealth.co"
             />
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-2">Password</label>
-            <input 
-              type="password" 
+            <input
+              type="password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-void-950/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors"
+              disabled={loading}
+              className="w-full bg-void-950/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 transition-colors disabled:opacity-50"
               placeholder="••••••••"
             />
           </div>
-          <button 
-            type="submit" 
-            className="w-full py-4 bg-brand-500 text-black font-bold rounded-xl hover:bg-brand-400 transition-colors shadow-[0_0_20px_rgba(20,184,166,0.3)] transform hover:-translate-y-1 duration-200"
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-4 bg-brand-500 text-black font-bold rounded-xl hover:bg-brand-400 transition-colors shadow-[0_0_20px_rgba(20,184,166,0.3)] transform hover:-translate-y-1 duration-200 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none"
           >
-            Authenticate
+            {loading ? <><Loader2 className="w-5 h-5 animate-spin" /> Authenticating...</> : 'Authenticate'}
           </button>
         </form>
       </div>

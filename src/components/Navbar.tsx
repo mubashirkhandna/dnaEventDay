@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Dna, ArrowRight, Timer } from 'lucide-react';
+import { Dna, Timer } from 'lucide-react';
 import { getStore } from '../lib/store';
 
 export default function Navbar() {

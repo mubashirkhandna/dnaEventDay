@@ -1,20 +1,28 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShieldAlert } from 'lucide-react';
+import { ShieldAlert, Loader2 } from 'lucide-react';
+import { adminLogin, setToken } from '../../lib/api';
+import { toast } from '../../lib/toast';
 
 export default function AdminLogin() {
   const [user, setUser] = useState('');
   const [pass, setPass] = useState('');
-  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (user === 'smon' && pass === 'focusshadman') {
+    setLoading(true);
+    try {
+      const { token } = await adminLogin(user, pass);
+      setToken('admin', token);
       localStorage.setItem('admin_auth', 'true');
+      toast.success('Access granted');
       navigate('/hello-kitty/dashboard');
-    } else {
-      setError('Invalid credentials');
+    } catch (err: unknown) {
+      toast.error((err as Error).message || 'Invalid credentials');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -30,34 +38,35 @@ export default function AdminLogin() {
           <p className="text-slate-400 text-sm mt-2">Restricted Area. Authorized access only.</p>
         </div>
 
-        {error && <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded-lg text-center">{error}</div>}
-
         <form onSubmit={handleLogin} className="space-y-6 relative z-10">
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-2">Username</label>
-            <input 
-              type="text" 
+            <input
+              type="text"
               required
               value={user}
               onChange={(e) => setUser(e.target.value)}
-              className="w-full bg-void-950/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 transition-colors"
+              disabled={loading}
+              className="w-full bg-void-950/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 transition-colors disabled:opacity-50"
             />
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-2">Password</label>
-            <input 
-              type="password" 
+            <input
+              type="password"
               required
               value={pass}
               onChange={(e) => setPass(e.target.value)}
-              className="w-full bg-void-950/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 transition-colors"
+              disabled={loading}
+              className="w-full bg-void-950/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 transition-colors disabled:opacity-50"
             />
           </div>
-          <button 
-            type="submit" 
-            className="w-full py-4 bg-red-600 text-white font-bold rounded-xl hover:bg-red-500 transition-colors shadow-[0_0_20px_rgba(220,38,38,0.3)] transform hover:-translate-y-1 duration-200"
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-4 bg-red-600 text-white font-bold rounded-xl hover:bg-red-500 transition-colors shadow-[0_0_20px_rgba(220,38,38,0.3)] transform hover:-translate-y-1 duration-200 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none"
           >
-            Access Mainframe
+            {loading ? <><Loader2 className="w-5 h-5 animate-spin" /> Authenticating...</> : 'Access Mainframe'}
           </button>
         </form>
       </div>

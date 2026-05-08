@@ -1,26 +1,39 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BrainCircuit } from 'lucide-react';
+import { BrainCircuit, Loader2 } from 'lucide-react';
 import { getStore } from '../../lib/store';
+import { quizLogin, setToken } from '../../lib/api';
+import { toast } from '../../lib/toast';
 import ComingSoon from '../../components/ComingSoon';
 
 export default function QuizLogin() {
   const [email, setEmail] = useState('');
   const [whatsapp, setWhatsapp] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const state = getStore();
+  if (!state.portalsEnabled.quiz) return <ComingSoon title="Quiz" />;
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email && whatsapp) {
-      localStorage.setItem('quiz_user', JSON.stringify({ email, whatsapp }));
+    setLoading(true);
+    try {
+      const res = await quizLogin(email, whatsapp);
+      setToken('quiz', res.token);
+      localStorage.setItem('quiz_user', JSON.stringify({ email: res.email, whatsapp: res.whatsapp }));
+      if (res.hasSubmitted) {
+        toast.info(`You already submitted. Score: ${res.score} pts`);
+      } else {
+        toast.success('Entering quiz...');
+      }
       navigate('/quiz/take');
+    } catch (err: unknown) {
+      toast.error((err as Error).message || 'Login failed');
+    } finally {
+      setLoading(false);
     }
   };
-
-  const state = getStore();
-  if (!state.portalsEnabled.quiz) {
-    return <ComingSoon title="Quiz" />;
-  }
 
   return (
     <div className="min-h-[calc(100vh-5rem)] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-void-950">
@@ -44,31 +57,34 @@ export default function QuizLogin() {
         <form onSubmit={handleLogin} className="space-y-6 relative z-10">
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-2">Registered Email</label>
-            <input 
-              type="email" 
+            <input
+              type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-void-950/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-yellow-500 transition-colors"
+              disabled={loading}
+              className="w-full bg-void-950/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-yellow-500 transition-colors disabled:opacity-50"
               placeholder="student@example.com"
             />
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-2">WhatsApp Number</label>
-            <input 
-              type="tel" 
+            <input
+              type="tel"
               required
               value={whatsapp}
               onChange={(e) => setWhatsapp(e.target.value)}
-              className="w-full bg-void-950/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-yellow-500 transition-colors"
+              disabled={loading}
+              className="w-full bg-void-950/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-yellow-500 transition-colors disabled:opacity-50"
               placeholder="+880 1..."
             />
           </div>
-          <button 
-            type="submit" 
-            className="w-full py-4 bg-yellow-500 text-black font-bold rounded-xl hover:bg-yellow-400 transition-colors shadow-[0_0_20px_rgba(234,179,8,0.2)] transform hover:-translate-y-1 duration-200"
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-4 bg-yellow-500 text-black font-bold rounded-xl hover:bg-yellow-400 transition-colors shadow-[0_0_20px_rgba(234,179,8,0.2)] transform hover:-translate-y-1 duration-200 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none"
           >
-            Start Quiz
+            {loading ? <><Loader2 className="w-5 h-5 animate-spin" /> Loading...</> : 'Start Quiz'}
           </button>
         </form>
       </div>
