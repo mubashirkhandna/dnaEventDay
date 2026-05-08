@@ -199,6 +199,8 @@ export interface Team {
   teamCode?: string;
   theme: string;
   description: string;
+  whyTheme?: string;
+  howSolution?: string;
   videoUrl?: string;
   pdfUrl?: string;
   pptxUrl?: string;

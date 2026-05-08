@@ -32,6 +32,8 @@ model Team {
   teamCode      String?
   theme         String
   description   String
+  whyTheme      String?
+  howSolution   String?
   videoUrl      String?
   pdfUrl        String?
   pptxUrl       String?

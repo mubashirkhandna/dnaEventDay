@@ -104,6 +104,23 @@ export default function AudienceTeamDetails() {
 
         <p className="text-slate-300 leading-relaxed mb-8">{team.description}</p>
 
+        {(team.whyTheme || team.howSolution) && (
+          <div className="space-y-4 mb-8">
+            {team.whyTheme && (
+              <div className="bg-void-900/60 border border-white/8 rounded-2xl p-5">
+                <p className="text-[11px] font-mono text-brand-400 uppercase tracking-widest mb-2">Why this theme?</p>
+                <p className="text-slate-300 text-sm leading-relaxed">{team.whyTheme}</p>
+              </div>
+            )}
+            {team.howSolution && (
+              <div className="bg-void-900/60 border border-white/8 rounded-2xl p-5">
+                <p className="text-[11px] font-mono text-brand-400 uppercase tracking-widest mb-2">How did they come up with the solution?</p>
+                <p className="text-slate-300 text-sm leading-relaxed">{team.howSolution}</p>
+              </div>
+            )}
+          </div>
+        )}
+
         {team.members.length > 0 && (
           <>
             <h3 className="text-xl font-bold text-white mb-4">Team Members</h3>
