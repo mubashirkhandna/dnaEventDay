@@ -7,6 +7,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!audience) return;
   if (req.method !== 'GET') return res.status(405).end();
   const { whatsapp } = audience as Record<string, string>;
-  const vote = await prisma.audienceVote.findUnique({ where: { whatsapp } });
+  const vote = await prisma.audienceVote.findFirst({ where: { whatsapp } });
   res.json({ hasVoted: !!vote, votedTeamId: vote?.teamId || null });
 }

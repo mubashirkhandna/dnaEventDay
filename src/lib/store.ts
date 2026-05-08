@@ -11,6 +11,7 @@ export interface AppState {
   pitchEndTime: number | null;
   judgeScores: Record<string, Record<string, ScoreData>>;
   audienceVotes: Record<string, string[]>;
+  audienceVoteTotals: Record<string, { total: number; unique: number }>;
   quizDuration: number;
   quizEndTime: number | null;
   quizSubmissions: Record<string, { score: number; timeTaken: number; submitTime: number }>;
@@ -25,6 +26,7 @@ const defaultState: AppState = {
   pitchEndTime: null,
   judgeScores: {},
   audienceVotes: {},
+  audienceVoteTotals: {},
   quizDuration: 5,
   quizEndTime: null,
   quizSubmissions: {},
@@ -43,6 +45,7 @@ function mapServerState(s: AppStateResponse): AppState {
     pitchEndTime: s.pitchEndTime,
     judgeScores: s.judgeScores,
     audienceVotes: s.audienceVotes,
+    audienceVoteTotals: s.audienceVoteTotals ?? {},
     quizDuration: s.quizDuration,
     quizEndTime: s.quizEndTime,
     quizSubmissions: s.quizSubmissions,

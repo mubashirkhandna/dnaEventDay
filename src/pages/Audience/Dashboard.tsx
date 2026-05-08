@@ -45,7 +45,7 @@ export default function AudienceDashboard() {
 
   // Sort all teams by votes, take top 12
   const ranked: RankedTeam[] = state.teams
-    .map((t) => ({ ...t, votes: state.audienceVotes[t.id]?.length || 0 }))
+    .map((t) => ({ ...t, votes: state.audienceVoteTotals[t.id]?.unique || 0 }))
     .sort((a, b) => b.votes - a.votes || a.name.localeCompare(b.name))
     .slice(0, 12)
     .map((t, i) => ({ ...t, rank: i + 1 }));

@@ -228,6 +228,7 @@ export interface AppStateResponse {
   settings: AppSettings;
   teams: Team[];
   audienceVotes: Record<string, string[]>;
+  audienceVoteTotals: Record<string, { total: number; unique: number }>;
   judgeScores: Record<string, Record<string, ScoreData>>;
   scoreRequests: Record<string, string>;
   quizSubmissions: Record<string, { score: number; timeTaken: number; submitTime: number }>;

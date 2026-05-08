@@ -12,9 +12,15 @@ export default async function handler(_req: NextApiRequest, res: NextApiResponse
   ]);
 
   const audienceVotes: Record<string, string[]> = {};
+  const audienceVoteTotals: Record<string, { total: number; unique: number }> = {};
   for (const v of votes) {
     if (!audienceVotes[v.teamId]) audienceVotes[v.teamId] = [];
     audienceVotes[v.teamId].push(v.whatsapp);
+  }
+  for (const [teamId, voters] of Object.entries(audienceVotes)) {
+    const teamVotes = votes.filter((v: { teamId: string; ip: string | null }) => v.teamId === teamId);
+    const uniqueIps = new Set(teamVotes.map((v: { ip: string | null }) => v.ip).filter(Boolean));
+    audienceVoteTotals[teamId] = { total: voters.length, unique: uniqueIps.size };
   }
 
   const judgeScores: Record<string, Record<string, unknown>> = {};
@@ -32,8 +38,8 @@ export default async function handler(_req: NextApiRequest, res: NextApiResponse
 
   res.json({
     settings: { ...settings, pitchEndTime: settings?.pitchEndTime ? settings.pitchEndTime.getTime() : null, quizEndTime: settings?.quizEndTime ? settings.quizEndTime.getTime() : null },
-    teams: teams.map(t => ({ ...t, status: t.status.toLowerCase() })),
-    audienceVotes, judgeScores, scoreRequests: scoreRequestsMap, quizSubmissions,
+    teams: teams.map((t: { status: string }) => ({ ...t, status: t.status.toLowerCase() })),
+    audienceVotes, audienceVoteTotals, judgeScores, scoreRequests: scoreRequestsMap, quizSubmissions,
     portalsEnabled: { judge: settings?.judgePortal ?? true, audience: settings?.audiencePortal ?? true, quiz: settings?.quizPortal ?? true },
     activeTeamId: settings?.activeTeamId ?? null,
     pitchDuration: settings?.pitchDuration ?? 5,

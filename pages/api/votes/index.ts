@@ -25,18 +25,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (!settings?.audiencePortal) return res.status(403).json({ error: 'Audience portal is currently closed' });
     const team = await prisma.team.findUnique({ where: { id: teamId } });
     if (!team) return res.status(404).json({ error: 'Team not found' });
-
-    // Duplicate check: WhatsApp number
-    const existingByWhatsapp = await prisma.audienceVote.findUnique({ where: { whatsapp } });
-    if (existingByWhatsapp) return res.status(409).json({ error: 'You have already voted', votedTeamId: existingByWhatsapp.teamId });
-
-    // Duplicate check: IP address
     const ip = getClientIp(req);
-    if (ip) {
-      const existingByIp = await prisma.audienceVote.findFirst({ where: { ip } });
-      if (existingByIp) return res.status(409).json({ error: 'A vote has already been cast from your network', votedTeamId: existingByIp.teamId });
-    }
-
     const vote = await prisma.audienceVote.create({ data: { whatsapp, name, teamId, ip } });
     return res.status(201).json(vote);
   }

@@ -99,7 +99,7 @@ model ScoreRequest {
 
 model AudienceVote {
   id        String   @id @default(cuid())
-  whatsapp  String   @unique
+  whatsapp  String
   name      String
   ip        String?
   team      Team     @relation(fields: [teamId], references: [id])
