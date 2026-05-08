@@ -716,7 +716,8 @@ export default function AdminDashboard() {
                   <th className="p-3 font-medium">Rank</th>
                   <th className="p-3 font-medium">Team</th>
                   <th className="p-3 font-medium text-center">Code</th>
-                  <th className="p-3 font-medium text-right text-brand-400">Unique Votes</th>
+                  <th className="p-3 font-medium text-right text-brand-400">Votes</th>
+                  <th className="p-3 font-medium text-right text-emerald-400">Cumulative</th>
                   <th className="p-3 font-medium text-right text-slate-500">Share</th>
                 </tr>
               </thead>
@@ -724,6 +725,7 @@ export default function AdminDashboard() {
                 {teamsWithVotes.map((team, idx) => {
                   const leaderPhoto = TEAM_LEADER_PHOTOS[team.teamCode || ''] || team.members[0]?.photoUrl || '';
                   const sharePct = totalVotesCast > 0 ? ((team.totalVotes / totalVotesCast) * 100).toFixed(1) : '0.0';
+                  const cumulative = teamsWithVotes.slice(0, idx + 1).reduce((s, t) => s + t.totalVotes, 0);
                   return (
                     <tr key={team.id} className="border-b border-white/5 hover:bg-void-900/50 transition-colors">
                       <td className="p-3 text-slate-300 font-bold">#{idx + 1}</td>
@@ -747,6 +749,7 @@ export default function AdminDashboard() {
                         )}
                       </td>
                       <td className="p-3 text-right font-bold text-brand-400 text-lg">{team.totalVotes}</td>
+                      <td className="p-3 text-right font-bold text-emerald-400">{cumulative}</td>
                       <td className="p-3 text-right text-slate-500 text-sm">{sharePct}%</td>
                     </tr>
                   );
