@@ -196,6 +196,23 @@ router.patch('/score-requests/:id', adminAuth, async (req, res) => {
   res.json(updated);
 });
 
+router.post('/teams/reorder', adminAuth, async (req, res) => {
+  const { orderedIds } = req.body as { orderedIds: string[] };
+  if (!Array.isArray(orderedIds) || orderedIds.length === 0) {
+    res.status(400).json({ error: 'orderedIds array required' });
+    return;
+  }
+
+  await prisma.$transaction(
+    orderedIds.map((id, index) =>
+      prisma.team.update({ where: { id }, data: { order: index + 1 } })
+    )
+  );
+
+  broadcast({ type: 'teams_update' });
+  res.json({ success: true });
+});
+
 router.post('/reset', adminAuth, async (_req, res) => {
   await prisma.$transaction([
     prisma.judgeScore.deleteMany(),

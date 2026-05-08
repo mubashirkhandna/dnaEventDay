@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getStore, AppState } from '../../lib/store';
 import { submitScore, requestScoreAccess, ScoreData, Team } from '../../lib/api';
 import { withToast } from '../../lib/toast';
-import { ArrowLeft, Presentation, CheckCircle2, AlertTriangle, Loader2 } from 'lucide-react';
+import { ArrowLeft, Presentation, CheckCircle2, AlertTriangle, Loader2, Download, ExternalLink } from 'lucide-react';
 import PitchDeckViewer from '../../components/PitchDeckViewer';
 
 export default function JudgeTeamDetails() {
@@ -102,7 +102,14 @@ export default function JudgeTeamDetails() {
 
       <div className="glass-card p-6 md:p-8 rounded-3xl mb-8 relative overflow-hidden">
         <h1 className="text-3xl md:text-4xl font-display font-bold text-white mb-2">{team.name}</h1>
-        <p className="text-brand-400 text-sm font-mono mb-6">{team.theme}</p>
+        <div className="flex items-center gap-3 mb-6">
+          <p className="text-brand-400 text-sm font-mono">{team.theme}</p>
+          {team.teamCode && (
+            <span className="text-xs px-2 py-0.5 bg-void-800 border border-white/10 rounded-full text-slate-400 font-mono">
+              {team.teamCode}
+            </span>
+          )}
+        </div>
 
         <div className="aspect-video bg-void-900 rounded-xl mb-6 overflow-hidden border border-brand-500/30 relative shadow-[0_0_20px_rgba(20,184,166,0.15)]">
           <iframe
@@ -128,10 +135,46 @@ export default function JudgeTeamDetails() {
 
         {/* PDF Presentation Viewer */}
         <div className="mt-10 border-t border-white/10 pt-8">
-          <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2"><Presentation className="text-brand-400" /> Pitch Deck</h3>
-          <div className="h-[600px] w-full bg-void-900 rounded-xl overflow-hidden border border-white/10 relative">
-             <PitchDeckViewer url={team.pdfUrl || ''} />
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-bold text-white flex items-center gap-2">
+              <Presentation className="text-brand-400" /> Pitch Deck
+            </h3>
+            {team.pptxUrl && (
+              <a
+                href={team.pptxUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium bg-void-800 hover:bg-void-700 border border-white/10 rounded-lg text-slate-300 hover:text-white transition-colors"
+              >
+                <Download className="w-3.5 h-3.5" /> Download PPTX
+              </a>
+            )}
+            {team.pdfUrl && (
+              <a
+                href={team.pdfUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium bg-void-800 hover:bg-void-700 border border-white/10 rounded-lg text-slate-300 hover:text-white transition-colors ml-2"
+              >
+                <ExternalLink className="w-3.5 h-3.5" /> Open in Drive
+              </a>
+            )}
           </div>
+          {team.pdfUrl ? (
+            <div className="w-full rounded-xl overflow-hidden border border-white/10">
+              <PitchDeckViewer url={team.pdfUrl} />
+            </div>
+          ) : team.pptxUrl ? (
+            <div className="flex flex-col items-center justify-center h-40 bg-void-900 rounded-xl border border-white/10 gap-3 text-slate-400">
+              <Presentation className="w-10 h-10 opacity-40" />
+              <p className="text-sm">No PDF available — use the Download PPTX button above.</p>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center h-40 bg-void-900 rounded-xl border border-white/10 gap-3 text-slate-500">
+              <Presentation className="w-10 h-10 opacity-30" />
+              <p className="text-sm">No pitch deck submitted.</p>
+            </div>
+          )}
         </div>
       </div>
 

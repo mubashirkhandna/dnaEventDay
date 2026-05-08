@@ -28,10 +28,12 @@ enum TeamStatus {
 model Team {
   id            String         @id @default(cuid())
   name          String
+  teamCode      String?
   theme         String
   description   String
   videoUrl      String?
   pdfUrl        String?
+  pptxUrl       String?
   status        TeamStatus     @default(WAITING)
   order         Int            @default(0)
   members       TeamMember[]

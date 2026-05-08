@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Lock, Loader2 } from 'lucide-react';
 import { getStore } from '../../lib/store';
-import { judgeLogin, setToken } from '../../lib/api';
+import { judgeLogin, setToken, getToken } from '../../lib/api';
 import { toast } from '../../lib/toast';
 import ComingSoon from '../../components/ComingSoon';
 
@@ -14,6 +14,13 @@ export default function JudgeLogin() {
 
   const state = getStore();
   if (!state.portalsEnabled.judge) return <ComingSoon title="Judge" />;
+
+  // Auto-login: if a token already exists, skip the form
+  useEffect(() => {
+    if (getToken('judge')) {
+      navigate('/judge/dashboard', { replace: true });
+    }
+  }, [navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

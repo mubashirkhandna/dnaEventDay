@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getStore, AppState } from '../../lib/store';
-import { Timer, CircleDot } from 'lucide-react';
+import { Timer, CircleDot, Loader2 } from 'lucide-react';
 
 export default function JudgeDashboard() {
   const [state, setState] = useState<AppState>(getStore());
@@ -37,9 +37,18 @@ export default function JudgeDashboard() {
   const activeTeam = state.teams.find(t => t.id === state.activeTeamId);
   const judgeEmail = localStorage.getItem('judge_email') || '';
 
+  if (state.teams.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-40 gap-4 text-slate-400">
+        <Loader2 className="w-8 h-8 animate-spin text-brand-400" />
+        <p className="text-sm font-mono">Connecting to server...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      
+
       {activeTeam && (
         <div className="glass-card rounded-2xl p-6 mb-10 flex flex-col md:flex-row items-center justify-between border-brand-500/50 shadow-[0_0_30px_rgba(20,184,166,0.15)] bg-void-950/80">
           <div className="flex items-center gap-4 mb-4 md:mb-0">

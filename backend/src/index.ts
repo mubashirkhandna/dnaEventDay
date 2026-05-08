@@ -13,6 +13,7 @@ import audienceRouter from './routes/audience';
 import votesRouter from './routes/votes';
 import quizRouter from './routes/quiz';
 import stateRouter from './routes/state';
+import proxyRouter from './routes/proxy';
 
 const app = express();
 const server = http.createServer(app);
@@ -46,6 +47,7 @@ app.use('/api/audience', audienceRouter);
 app.use('/api/votes', votesRouter);
 app.use('/api/quiz', quizRouter);
 app.use('/api/state', stateRouter);
+app.use('/api/proxy', proxyRouter);
 
 app.get('/health', (_req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
 

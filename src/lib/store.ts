@@ -71,7 +71,22 @@ export async function refreshStore(): Promise<void> {
 
 // Initialize store: fetch state + connect WebSocket + set up polling fallback
 export async function initStore(): Promise<void> {
-  await refreshStore();
+  // Try first fetch; if backend is down keep retrying every 2 s until it responds
+  let connected = false;
+  try {
+    await refreshStore();
+    connected = true;
+  } catch { /* retried below */ }
+
+  if (!connected) {
+    const retryId = setInterval(async () => {
+      try {
+        await refreshStore();
+        connected = true;
+        clearInterval(retryId);
+      } catch { /* still down */ }
+    }, 2000);
+  }
 
   // WebSocket for real-time push
   try {
@@ -83,11 +98,11 @@ export async function initStore(): Promise<void> {
         await refreshStore();
       }
     });
-  } catch (e) {
+  } catch {
     console.warn('[Store] WebSocket unavailable, falling back to polling');
   }
 
-  // Poll every 5s as fallback / supplement
+  // Poll every 5 s as fallback / supplement
   if (pollInterval) clearInterval(pollInterval);
   pollInterval = setInterval(refreshStore, 5000);
 }

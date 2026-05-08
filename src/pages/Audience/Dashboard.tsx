@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getStore, AppState } from '../../lib/store';
+import { Loader2 } from 'lucide-react';
 
 export default function AudienceDashboard() {
   const [state, setState] = useState<AppState>(getStore());
@@ -11,6 +12,15 @@ export default function AudienceDashboard() {
     window.addEventListener('h4h_state_change', handleStorage);
     return () => window.removeEventListener('h4h_state_change', handleStorage);
   }, []);
+
+  if (state.teams.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-40 gap-4 text-slate-400">
+        <Loader2 className="w-8 h-8 animate-spin text-brand-400" />
+        <p className="text-sm font-mono">Connecting to server...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">

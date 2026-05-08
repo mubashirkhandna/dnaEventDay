@@ -196,10 +196,12 @@ export interface TeamMember {
 export interface Team {
   id: string;
   name: string;
+  teamCode?: string;
   theme: string;
   description: string;
   videoUrl?: string;
   pdfUrl?: string;
+  pptxUrl?: string;
   status: 'waiting' | 'presenting' | 'completed';
   order: number;
   members: TeamMember[];
