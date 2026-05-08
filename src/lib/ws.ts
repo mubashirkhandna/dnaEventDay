@@ -1,6 +1,9 @@
 const WS_URL = (() => {
-  const base = (import.meta.env.VITE_API_URL as string) || 'http://localhost:3001';
-  return base.replace(/^http/, 'ws') + '/ws';
+  const explicit = import.meta.env.VITE_API_URL as string | undefined;
+  if (explicit) return explicit.replace(/^http/, 'ws') + '/ws';
+  // Derive from current page origin (works in both dev proxy and production)
+  const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  return `${proto}//${window.location.host}/ws`;
 })();
 
 type MessageHandler = (data: Record<string, unknown>) => void;
