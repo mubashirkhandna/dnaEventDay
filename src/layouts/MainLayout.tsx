@@ -1,0 +1,15 @@
+import { Outlet } from 'react-router-dom';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
+
+export default function MainLayout() {
+  return (
+    <div className="min-h-screen flex flex-col selection:bg-brand-500 selection:text-black font-sans">
+      <Navbar />
+      <main className="flex-grow pt-20">
+        <Outlet />
+      </main>
+      <Footer />
+    </div>
+  );
+}
