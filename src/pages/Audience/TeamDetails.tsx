@@ -4,7 +4,8 @@ import { getStore, AppState } from '../../lib/store';
 import { castVote } from '../../lib/api';
 import { toast } from '../../lib/toast';
 import { Team } from '../../lib/api';
-import { ArrowLeft, Play, ThumbsUp, CheckCircle2, Loader2 } from 'lucide-react';
+import PitchDeckViewer from '../../components/PitchDeckViewer';
+import { ArrowLeft, ExternalLink, ThumbsUp, CheckCircle2, Loader2 } from 'lucide-react';
 
 export default function AudienceTeamDetails() {
   const { id } = useParams<{ id: string }>();
@@ -21,13 +22,16 @@ export default function AudienceTeamDetails() {
     const sync = () => {
       const s = getStore();
       setState(s);
-      const allVoters = Object.values(s.audienceVotes).flat();
-      setHasVoted(allVoters.includes(userIdentifier));
+      // Only check this specific team's voter list — not all teams.
+      // Multiple votes and cross-team votes are allowed; "hasVoted" is
+      // just a per-team indicator showing the most recent vote state.
+      const teamVoters: string[] = s.audienceVotes[id || ''] || [];
+      setHasVoted(teamVoters.includes(userIdentifier));
     };
     sync();
     window.addEventListener('h4h_state_change', sync);
     return () => window.removeEventListener('h4h_state_change', sync);
-  }, [userIdentifier]);
+  }, [userIdentifier, id]);
 
   const team: Team | undefined = state.teams.find((t) => t.id === id);
 
@@ -45,13 +49,15 @@ export default function AudienceTeamDetails() {
     setVoting(true);
     try {
       await castVote(id);
-      setHasVoted(true);
       toast.success(`Vote cast for ${team.name}!`);
+      setShowConfirm(false);
+      // After a brief delay, reset the voted state so users can vote again.
+      // Multiple votes are allowed; unique-IP tracking is handled server-side.
+      setTimeout(() => setHasVoted(false), 3000);
     } catch (err: unknown) {
       toast.error((err as Error).message || 'Failed to cast vote');
     } finally {
       setVoting(false);
-      setShowConfirm(false);
     }
   };
 
@@ -65,32 +71,61 @@ export default function AudienceTeamDetails() {
         <h1 className="text-3xl md:text-4xl font-display font-bold text-white mb-2">{team.name}</h1>
         <p className="text-brand-400 text-sm font-mono mb-6">{team.theme}</p>
 
-        <div className="aspect-video bg-void-950 rounded-xl mb-6 flex items-center justify-center border border-white/5 relative group cursor-pointer overflow-hidden">
-          {team.videoUrl ? (
-            <img
-              src={`https://img.youtube.com/vi/${team.videoUrl.split('embed/')[1]}/maxresdefault.jpg`}
-              alt="Video Thumbnail"
-              className="absolute w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity"
-            />
-          ) : (
-            <div className="absolute inset-0 bg-void-900"></div>
-          )}
-          <div className="w-16 h-16 bg-brand-500/80 rounded-full flex items-center justify-center text-black z-10 group-hover:scale-110 transition-transform shadow-lg backdrop-blur-sm">
-            <Play className="w-8 h-8 ml-1" />
+        {/* Pitch Deck — prefer Canva link if available, otherwise render PDF */}
+        {team.pptxUrl ? (
+          <div className="rounded-xl mb-6 overflow-hidden border border-white/10 bg-void-900/50">
+            <div className="aspect-video flex flex-col items-center justify-center gap-4 p-8 text-center">
+              <div className="w-16 h-16 rounded-2xl bg-violet-500/20 border border-violet-500/30 flex items-center justify-center">
+                <ExternalLink className="w-8 h-8 text-violet-400" />
+              </div>
+              <div>
+                <p className="text-white font-bold text-lg mb-1">Canva Presentation</p>
+                <p className="text-slate-400 text-sm mb-4">View this team's pitch deck on Canva</p>
+                <a
+                  href={team.pptxUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-violet-500 text-white font-bold rounded-xl hover:bg-violet-400 transition-colors"
+                >
+                  <ExternalLink className="w-4 h-4" /> Open in Canva
+                </a>
+              </div>
+            </div>
           </div>
-        </div>
+        ) : team.pdfUrl ? (
+          <div className="rounded-xl mb-6 overflow-hidden border border-white/10">
+            <PitchDeckViewer url={team.pdfUrl} />
+          </div>
+        ) : (
+          <div className="aspect-video bg-void-900 rounded-xl mb-6 flex items-center justify-center border border-white/5">
+            <p className="text-slate-500 text-sm">No pitch deck submitted.</p>
+          </div>
+        )}
 
         <p className="text-slate-300 leading-relaxed mb-8">{team.description}</p>
 
-        <h3 className="text-xl font-bold text-white mb-4">Team Members</h3>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
-          {team.members.map((m, i) => (
-            <div key={i} className="flex items-center gap-3 bg-void-900/50 p-3 rounded-xl border border-white/5">
-              <img src={m.photoUrl} alt={m.name} className="w-10 h-10 rounded-full object-cover" />
-              <span className="text-sm font-medium text-slate-200">{m.name}</span>
+        {team.members.length > 0 && (
+          <>
+            <h3 className="text-xl font-bold text-white mb-4">Team Members</h3>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
+              {team.members.map((m, i) => (
+                <div key={i} className="flex items-center gap-3 bg-void-900/50 p-3 rounded-xl border border-white/5">
+                  {m.photoUrl ? (
+                    <img src={m.photoUrl} alt={m.name} className="w-10 h-10 rounded-full object-cover border border-white/10 shrink-0" />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-void-800 border border-white/10 flex items-center justify-center text-white font-bold text-sm shrink-0">
+                      {m.name[0]}
+                    </div>
+                  )}
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-slate-200 truncate">{m.name}</p>
+                    {i === 0 && <p className="text-[10px] text-brand-400 font-mono">Team Leader</p>}
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </>
+        )}
       </div>
 
       <div className="sticky bottom-6 z-40 bg-void-900/90 backdrop-blur-xl p-4 md:p-6 rounded-2xl border border-white/10 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] text-center">

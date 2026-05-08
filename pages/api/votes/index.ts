@@ -3,10 +3,15 @@ import { prisma } from '../../../lib/prisma';
 import { requireAudience } from '../../../lib/auth';
 
 function getClientIp(req: NextApiRequest): string | null {
+  // Vercel sets x-real-ip to the original client IP (most reliable)
+  const realIp = req.headers['x-real-ip'];
+  if (realIp && typeof realIp === 'string' && realIp.trim()) return realIp.trim();
+  // x-forwarded-for may be a comma-separated list; first entry is the client
   const forwarded = req.headers['x-forwarded-for'];
   if (forwarded) {
-    const ip = Array.isArray(forwarded) ? forwarded[0] : forwarded.split(',')[0];
-    return ip.trim();
+    const raw = Array.isArray(forwarded) ? forwarded[0] : forwarded;
+    const ip = raw.split(',')[0].trim();
+    if (ip) return ip;
   }
   return req.socket?.remoteAddress ?? null;
 }

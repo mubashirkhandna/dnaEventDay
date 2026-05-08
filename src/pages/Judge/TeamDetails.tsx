@@ -144,9 +144,10 @@ export default function JudgeTeamDetails() {
                 href={team.pptxUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium bg-void-800 hover:bg-void-700 border border-white/10 rounded-lg text-slate-300 hover:text-white transition-colors"
+                className={`flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${team.pptxUrl.includes('canva.link') ? 'bg-violet-500/20 hover:bg-violet-500/30 border border-violet-500/30 text-violet-300 hover:text-violet-200' : 'bg-void-800 hover:bg-void-700 border border-white/10 text-slate-300 hover:text-white'}`}
               >
-                <Download className="w-3.5 h-3.5" /> Download PPTX
+                <ExternalLink className="w-3.5 h-3.5" />
+                {team.pptxUrl.includes('canva.link') ? 'Open in Canva' : 'Download PPTX'}
               </a>
             )}
             {team.pdfUrl && (
@@ -160,14 +161,14 @@ export default function JudgeTeamDetails() {
               </a>
             )}
           </div>
-          {team.pdfUrl ? (
+          {team.pptxUrl?.includes('canva.link') ? (
+            <div className="flex flex-col items-center justify-center h-40 bg-violet-500/5 rounded-xl border border-violet-500/20 gap-3 text-violet-300">
+              <ExternalLink className="w-10 h-10 opacity-60" />
+              <p className="text-sm">Use the <span className="font-bold">Open in Canva</span> button above to view the presentation.</p>
+            </div>
+          ) : team.pdfUrl ? (
             <div className="w-full rounded-xl overflow-hidden border border-white/10">
               <PitchDeckViewer url={team.pdfUrl} />
-            </div>
-          ) : team.pptxUrl ? (
-            <div className="flex flex-col items-center justify-center h-40 bg-void-900 rounded-xl border border-white/10 gap-3 text-slate-400">
-              <Presentation className="w-10 h-10 opacity-40" />
-              <p className="text-sm">No PDF available — use the Download PPTX button above.</p>
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center h-40 bg-void-900 rounded-xl border border-white/10 gap-3 text-slate-500">

@@ -348,6 +348,9 @@ export default function AdminDashboard() {
                     <GripVertical className="w-5 h-5 text-slate-600 shrink-0 select-none" />
                     <span className="text-xs font-mono text-slate-600 w-5 shrink-0">#{idx + 1}</span>
                     <span className="text-white font-medium">{team.name}</span>
+                    {team.pptxUrl && (
+                      <span className="text-[10px] px-1.5 py-0.5 bg-violet-500/20 text-violet-400 border border-violet-500/30 rounded-full font-mono">Canva</span>
+                    )}
                     <span className="ml-2">
                       {team.status === 'presenting'
                         ? <span className="text-xs bg-brand-500/20 text-brand-400 px-2 py-0.5 rounded-full border border-brand-500/30 animate-pulse">Presenting</span>
@@ -750,6 +753,9 @@ export default function AdminDashboard() {
                             </div>
                           )}
                           <span className="text-white font-medium">{team.name}</span>
+                          {team.pptxUrl && (
+                            <span className="text-[10px] px-1.5 py-0.5 bg-violet-500/20 text-violet-400 border border-violet-500/30 rounded-full font-mono">Canva</span>
+                          )}
                         </div>
                       </td>
                       <td className="p-3 text-center">
