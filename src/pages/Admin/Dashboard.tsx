@@ -72,6 +72,7 @@ export default function AdminDashboard() {
   // Drag-and-drop team order
   const [orderedTeams, setOrderedTeams] = useState(state.teams);
   const [isSavingOrder, setIsSavingOrder] = useState(false);
+  const [hasUnsavedOrder, setHasUnsavedOrder] = useState(false);
 
   useEffect(() => {
     const sync = () => setState(getStore());
@@ -85,10 +86,12 @@ export default function AdminDashboard() {
     return () => { window.removeEventListener('h4h_state_change', sync); clearInterval(timerTick); };
   }, []);
 
-  // Keep orderedTeams in sync with state (from WebSocket updates)
+  // Sync orderedTeams from server only when user has no unsaved drag changes
   useEffect(() => {
-    setOrderedTeams([...state.teams].sort((a, b) => a.order - b.order));
-  }, [state.teams]);
+    if (!hasUnsavedOrder) {
+      setOrderedTeams([...state.teams].sort((a, b) => a.order - b.order));
+    }
+  }, [state.teams, hasUnsavedOrder]);
 
   // Fetch scores & requests whenever on judgement tab
   useEffect(() => {
@@ -148,9 +151,10 @@ export default function AdminDashboard() {
         body: JSON.stringify({ orderedIds }),
       });
       if (!res.ok) throw new Error('Failed to save order');
+      setHasUnsavedOrder(false);
       await refreshStore();
     } catch {
-      toast.error('Failed to save order — backend may not support reorder yet.');
+      toast.error('Failed to save order.');
     } finally {
       setIsSavingOrder(false);
     }
@@ -326,7 +330,7 @@ export default function AdminDashboard() {
         <Reorder.Group
           axis="y"
           values={orderedTeams}
-          onReorder={setOrderedTeams}
+          onReorder={(newOrder) => { setOrderedTeams(newOrder); setHasUnsavedOrder(true); }}
           className="space-y-2"
         >
           {orderedTeams.map((team, idx) => {

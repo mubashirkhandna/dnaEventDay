@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BrainCircuit, Loader2 } from 'lucide-react';
 import { getStore } from '../../lib/store';
-import { quizLogin, setToken } from '../../lib/api';
+import { quizLogin, setToken, getToken } from '../../lib/api';
 import { toast } from '../../lib/toast';
 import ComingSoon from '../../components/ComingSoon';
 
@@ -14,6 +14,13 @@ export default function QuizLogin() {
 
   const state = getStore();
   if (!state.portalsEnabled.quiz) return <ComingSoon title="Quiz" />;
+
+  // Auto-login: if token exists from a previous session, go straight to the quiz
+  useEffect(() => {
+    if (getToken('quiz')) {
+      navigate('/quiz/take', { replace: true });
+    }
+  }, [navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
