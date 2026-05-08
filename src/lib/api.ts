@@ -235,6 +235,7 @@ export interface AppStateResponse {
   scoreRequests: Record<string, string>;
   quizSubmissions: Record<string, { score: number; timeTaken: number; submitTime: number }>;
   portalsEnabled: { judge: boolean; audience: boolean; quiz: boolean };
+  liveStreamUrl: string | null;
   activeTeamId: string | null;
   pitchDuration: number;
   pitchEndTime: number | null;

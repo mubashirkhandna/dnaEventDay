@@ -18,6 +18,7 @@ model AppSettings {
   judgePortal    Boolean   @default(true)
   audiencePortal Boolean   @default(true)
   quizPortal     Boolean   @default(true)
+  liveStreamUrl  String?
 }
 
 enum TeamStatus {

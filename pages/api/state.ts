@@ -41,6 +41,7 @@ export default async function handler(_req: NextApiRequest, res: NextApiResponse
     teams: teams.map((t: { status: string }) => ({ ...t, status: t.status.toLowerCase() })),
     audienceVotes, audienceVoteTotals, judgeScores, scoreRequests: scoreRequestsMap, quizSubmissions,
     portalsEnabled: { judge: settings?.judgePortal ?? true, audience: settings?.audiencePortal ?? true, quiz: settings?.quizPortal ?? true },
+    liveStreamUrl: settings?.liveStreamUrl ?? null,
     activeTeamId: settings?.activeTeamId ?? null,
     pitchDuration: settings?.pitchDuration ?? 5,
     pitchEndTime: settings?.pitchEndTime ? settings.pitchEndTime.getTime() : null,

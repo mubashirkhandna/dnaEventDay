@@ -9,7 +9,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.json(s);
   }
   if (req.method === 'PATCH') {
-    const { judgePortal, audiencePortal, quizPortal, pitchDuration, quizDuration } = req.body;
+    const { judgePortal, audiencePortal, quizPortal, pitchDuration, quizDuration, liveStreamUrl } = req.body;
     const updated = await prisma.appSettings.update({
       where: { id: 1 },
       data: {
@@ -18,6 +18,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         ...(quizPortal !== undefined && { quizPortal }),
         ...(pitchDuration !== undefined && { pitchDuration }),
         ...(quizDuration !== undefined && { quizDuration }),
+        ...(liveStreamUrl !== undefined && { liveStreamUrl: liveStreamUrl || null }),
       },
     });
     return res.json(updated);

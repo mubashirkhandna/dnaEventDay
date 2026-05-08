@@ -51,6 +51,7 @@ export default function AdminDashboard() {
   const [state, setState] = useState<AppState>(getStore());
   const [pitchInput, setPitchInput] = useState('');
   const [quizInput, setQuizInput] = useState('');
+  const [liveUrlInput, setLiveUrlInput] = useState('');
   const [pitchTimeLeft, setPitchTimeLeft] = useState(0);
   const [quizTimeLeft, setQuizTimeLeft] = useState(0);
 
@@ -170,6 +171,25 @@ export default function AdminDashboard() {
     } catch { /* toasted */ } finally { setBusy(null); }
   };
 
+  // ── Live stream URL ───────────────────────────────────────────────────────
+  const handleSaveLiveUrl = async () => {
+    const url = liveUrlInput.trim();
+    setBusy('live-url');
+    try {
+      await withToast(adminPatchSettings({ liveStreamUrl: url }), { loading: 'Saving...', success: 'Live stream URL saved' });
+      await refreshStore();
+      setLiveUrlInput('');
+    } catch { /* toasted */ } finally { setBusy(null); }
+  };
+
+  const handleClearLiveUrl = async () => {
+    setBusy('live-url-clear');
+    try {
+      await adminPatchSettings({ liveStreamUrl: '' });
+      await refreshStore();
+    } catch { /* toasted */ } finally { setBusy(null); }
+  };
+
   // ── Portal toggles ────────────────────────────────────────────────────────
   const handleTogglePortal = async (portal: 'judge' | 'audience' | 'quiz') => {
     const current = state.portalsEnabled[portal];
@@ -280,6 +300,50 @@ export default function AdminDashboard() {
               {portal} Portal: {state.portalsEnabled[portal] ? 'Live' : 'Closed'}
             </button>
           ))}
+        </div>
+      </div>
+
+      {/* Live Stream */}
+      <div className="glass-card p-6 rounded-2xl border-red-500/20 md:col-span-3">
+        <h3 className="text-lg font-bold text-slate-300 mb-4 flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" /> YouTube Live Stream
+        </h3>
+        {state.liveStreamUrl && (
+          <div className="flex items-center gap-3 mb-4 p-3 bg-void-900/60 rounded-xl border border-white/10">
+            <span className="text-slate-400 text-sm truncate flex-1 font-mono">{state.liveStreamUrl}</span>
+            <a
+              href={state.liveStreamUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="shrink-0 flex items-center gap-2 px-4 py-2 bg-red-500 text-white font-bold rounded-xl hover:bg-red-400 transition-colors text-sm"
+            >
+              <ExternalLink className="w-4 h-4" /> Watch Live
+            </a>
+            <button
+              onClick={handleClearLiveUrl}
+              disabled={busy === 'live-url-clear'}
+              className="shrink-0 p-2 text-slate-500 hover:text-red-400 transition-colors"
+              title="Remove URL"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+        <div className="flex gap-3">
+          <input
+            type="url"
+            value={liveUrlInput}
+            onChange={(e) => setLiveUrlInput(e.target.value)}
+            placeholder="Paste YouTube live stream URL..."
+            className="flex-1 bg-void-800 border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder-slate-600 focus:outline-none focus:border-red-500 text-sm"
+          />
+          <button
+            onClick={handleSaveLiveUrl}
+            disabled={busy === 'live-url' || !liveUrlInput.trim()}
+            className="px-5 py-2.5 bg-red-500 text-white font-bold rounded-xl hover:bg-red-400 transition-colors disabled:opacity-50 flex items-center gap-2 text-sm"
+          >
+            {busy === 'live-url' ? <Loader2 className="w-4 h-4 animate-spin" /> : null} Save
+          </button>
         </div>
       </div>
     </div>

@@ -16,6 +16,7 @@ export interface AppState {
   quizEndTime: number | null;
   quizSubmissions: Record<string, { score: number; timeTaken: number; submitTime: number }>;
   portalsEnabled: { judge: boolean; audience: boolean; quiz: boolean };
+  liveStreamUrl: string | null;
   scoreRequests: Record<string, 'pending' | 'approved' | 'rejected'>;
 }
 
@@ -31,6 +32,7 @@ const defaultState: AppState = {
   quizEndTime: null,
   quizSubmissions: {},
   portalsEnabled: { judge: true, audience: true, quiz: true },
+  liveStreamUrl: null,
   scoreRequests: {},
 };
 
@@ -50,6 +52,7 @@ function mapServerState(s: AppStateResponse): AppState {
     quizEndTime: s.quizEndTime,
     quizSubmissions: s.quizSubmissions,
     portalsEnabled: s.portalsEnabled,
+    liveStreamUrl: s.liveStreamUrl ?? null,
     scoreRequests: s.scoreRequests as Record<string, 'pending' | 'approved' | 'rejected'>,
   };
 }
