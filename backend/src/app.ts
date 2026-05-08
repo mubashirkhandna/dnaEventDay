@@ -14,22 +14,7 @@ import proxyRouter from './routes/proxy';
 
 const app = express();
 
-const allowedOrigins = [
-  'http://localhost:5173',
-  'http://localhost:4173',
-  process.env.FRONTEND_URL,
-].filter(Boolean) as string[];
-
-app.use(
-  cors({
-    origin: (origin, cb) => {
-      // allow same-origin (no Origin header) and listed origins
-      if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
-      cb(new Error('Not allowed by CORS'));
-    },
-    credentials: true,
-  })
-);
+app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 
 app.use('/api/admin', adminRouter);
