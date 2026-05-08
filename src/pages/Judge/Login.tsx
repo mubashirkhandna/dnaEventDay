@@ -12,15 +12,15 @@ export default function JudgeLogin() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const state = getStore();
-  if (!state.portalsEnabled.judge) return <ComingSoon title="Judge" />;
-
-  // Auto-login: if a token already exists, skip the form
+  // Auto-login: must be before any conditional return (Rules of Hooks)
   useEffect(() => {
     if (getToken('judge')) {
       navigate('/judge/dashboard', { replace: true });
     }
   }, [navigate]);
+
+  const state = getStore();
+  if (!state.portalsEnabled.judge) return <ComingSoon title="Judge" />;
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -12,15 +12,15 @@ export default function QuizLogin() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const state = getStore();
-  if (!state.portalsEnabled.quiz) return <ComingSoon title="Quiz" />;
-
-  // Auto-login: if token exists from a previous session, go straight to the quiz
+  // Auto-login: must be before any conditional return (Rules of Hooks)
   useEffect(() => {
     if (getToken('quiz')) {
       navigate('/quiz/take', { replace: true });
     }
   }, [navigate]);
+
+  const state = getStore();
+  if (!state.portalsEnabled.quiz) return <ComingSoon title="Quiz" />;
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
