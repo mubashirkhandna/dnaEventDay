@@ -107,6 +107,17 @@ model AudienceVote {
   createdAt DateTime @default(now())
 }
 
+model QuizRegistration {
+  id          String @id @default(cuid())
+  code        String @unique
+  name        String
+  institution String
+  email       String @unique
+  phone       String
+  year        Int
+  division    String
+}
+
 model QuizQuestion {
   id       String   @id @default(cuid())
   question String
