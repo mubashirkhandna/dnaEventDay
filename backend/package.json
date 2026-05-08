@@ -11,7 +11,8 @@
     "db:studio": "prisma studio",
     "db:migrate": "prisma migrate dev",
     "import:teams": "tsx scripts/import-teams.ts",
-    "add:missing": "tsx scripts/add-missing-teams.ts"
+    "add:missing": "tsx scripts/add-missing-teams.ts",
+    "seed:quiz": "tsx scripts/seed-quiz.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.13.0",
