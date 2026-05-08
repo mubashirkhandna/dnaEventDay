@@ -1,0 +1,124 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model AppSettings {
+  id             Int       @id @default(1)
+  activeTeamId   String?
+  pitchDuration  Int       @default(5)
+  pitchEndTime   DateTime?
+  quizDuration   Int       @default(5)
+  quizEndTime    DateTime?
+  judgePortal    Boolean   @default(true)
+  audiencePortal Boolean   @default(true)
+  quizPortal     Boolean   @default(true)
+}
+
+enum TeamStatus {
+  WAITING
+  PRESENTING
+  COMPLETED
+}
+
+model Team {
+  id            String         @id @default(cuid())
+  name          String
+  teamCode      String?
+  theme         String
+  description   String
+  videoUrl      String?
+  pdfUrl        String?
+  pptxUrl       String?
+  status        TeamStatus     @default(WAITING)
+  order         Int            @default(0)
+  members       TeamMember[]
+  scores        JudgeScore[]
+  votes         AudienceVote[]
+  scoreRequests ScoreRequest[]
+}
+
+model TeamMember {
+  id       String @id @default(cuid())
+  name     String
+  photoUrl String
+  team     Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  teamId   String
+}
+
+model Judge {
+  id           String         @id @default(cuid())
+  email        String         @unique
+  name         String         @default("")
+  passwordHash String
+  scores       JudgeScore[]
+  requests     ScoreRequest[]
+  createdAt    DateTime       @default(now())
+}
+
+enum ScoreRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model JudgeScore {
+  id                 String   @id @default(cuid())
+  judge              Judge    @relation(fields: [judgeId], references: [id])
+  judgeId            String
+  team               Team     @relation(fields: [teamId], references: [id])
+  teamId             String
+  costEffectiveness  Int
+  medicalImpact      Int
+  feasibility        Int
+  technicalExecution Int
+  note               String   @default("")
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@unique([judgeId, teamId])
+}
+
+model ScoreRequest {
+  id        String             @id @default(cuid())
+  judge     Judge              @relation(fields: [judgeId], references: [id])
+  judgeId   String
+  team      Team               @relation(fields: [teamId], references: [id])
+  teamId    String
+  status    ScoreRequestStatus @default(PENDING)
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+
+  @@unique([judgeId, teamId])
+}
+
+model AudienceVote {
+  id        String   @id @default(cuid())
+  whatsapp  String   @unique
+  name      String
+  team      Team     @relation(fields: [teamId], references: [id])
+  teamId    String
+  createdAt DateTime @default(now())
+}
+
+model QuizQuestion {
+  id       String   @id @default(cuid())
+  question String
+  options  String[]
+  answer   String
+  order    Int      @default(0)
+}
+
+model QuizSubmission {
+  id         String   @id @default(cuid())
+  email      String   @unique
+  whatsapp   String
+  score      Int
+  timeTaken  Int
+  submitTime DateTime @default(now())
+}

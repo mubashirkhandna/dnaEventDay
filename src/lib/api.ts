@@ -1,4 +1,4 @@
-const API_URL = (import.meta.env.VITE_API_URL as string) || '';
+const API_URL = '';
 
 // ─── Token helpers ────────────────────────────────────────────────────────────
 export const getToken = (role: string): string | null =>
