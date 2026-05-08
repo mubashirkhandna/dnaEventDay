@@ -111,12 +111,23 @@ export default function AudienceTeamDetails() {
               {team.members.map((m, i) => (
                 <div key={i} className="flex items-center gap-3 bg-void-900/50 p-3 rounded-xl border border-white/5">
                   {m.photoUrl ? (
-                    <img src={m.photoUrl} alt={m.name} className="w-10 h-10 rounded-full object-cover border border-white/10 shrink-0" />
-                  ) : (
-                    <div className="w-10 h-10 rounded-full bg-void-800 border border-white/10 flex items-center justify-center text-white font-bold text-sm shrink-0">
-                      {m.name[0]}
-                    </div>
-                  )}
+                    <img
+                      src={m.photoUrl}
+                      alt={m.name}
+                      className="w-10 h-10 rounded-full object-cover border border-white/10 shrink-0"
+                      onError={(e) => {
+                        const t = e.currentTarget;
+                        t.style.display = 'none';
+                        (t.nextElementSibling as HTMLElement | null)?.style.setProperty('display', 'flex');
+                      }}
+                    />
+                  ) : null}
+                  <div
+                    className="w-10 h-10 rounded-full bg-void-800 border border-white/10 items-center justify-center text-white font-bold text-sm shrink-0"
+                    style={{ display: m.photoUrl ? 'none' : 'flex' }}
+                  >
+                    {m.name[0]}
+                  </div>
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-slate-200 truncate">{m.name}</p>
                     {i === 0 && <p className="text-[10px] text-brand-400 font-mono">Team Leader</p>}
