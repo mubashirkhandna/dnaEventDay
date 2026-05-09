@@ -71,6 +71,11 @@ export default function AdminDashboard() {
 
   const [isFullscreen, setIsFullscreen] = useState(false);
 
+  // Judgment results manual entries
+  const [manualResults, setManualResults] = useState<{ id: number; name: string; score: number }[]>([]);
+  const [manualName, setManualName] = useState('');
+  const [manualScore, setManualScore] = useState('');
+
   // Drag-and-drop team order
   const [orderedTeams, setOrderedTeams] = useState(state.teams);
   const [isSavingOrder, setIsSavingOrder] = useState(false);
@@ -536,6 +541,101 @@ export default function AdminDashboard() {
           </div>
         </div>
       )}
+
+      {/* Judgment Results Leaderboard */}
+      <div className="glass-card p-6 rounded-2xl border-brand-500/20">
+        <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+          <Trophy className="w-5 h-5 text-yellow-400" /> Judgment Results
+        </h3>
+
+        {/* Computed averages from actual scores */}
+        {(() => {
+          const teamMap: Record<string, { name: string; totals: number[]; byJudge: { email: string; total: number }[] }> = {};
+          for (const s of scores) {
+            const total = s.innovation + s.feasibility + s.impact + s.ethicsAndSafety + s.presentationAndClarity;
+            if (!teamMap[s.teamId]) teamMap[s.teamId] = { name: s.team.name, totals: [], byJudge: [] };
+            teamMap[s.teamId].totals.push(total);
+            teamMap[s.teamId].byJudge.push({ email: s.judge.email, total });
+          }
+          const ranked = Object.entries(teamMap)
+            .map(([, v]) => ({ name: v.name, avg: v.totals.reduce((a, b) => a + b, 0) / v.totals.length, judges: v.totals.length, byJudge: v.byJudge }))
+            .concat(manualResults.map((m) => ({ name: `${m.name} ★`, avg: m.score, judges: 0, byJudge: [] })))
+            .sort((a, b) => b.avg - a.avg);
+
+          const medals = ['🥇', '🥈', '🥉'];
+
+          return ranked.length === 0 ? (
+            <p className="text-slate-500 text-sm mb-6">No scores submitted yet.</p>
+          ) : (
+            <div className="space-y-2 mb-6">
+              {ranked.map((entry, i) => (
+                <div key={entry.name + i} className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition-all ${i === 0 ? 'bg-yellow-500/10 border-yellow-500/30' : i === 1 ? 'bg-slate-400/5 border-slate-400/20' : i === 2 ? 'bg-amber-700/10 border-amber-700/20' : 'bg-void-950/30 border-white/5'}`}>
+                  <span className="text-xl w-8 text-center">{medals[i] ?? `#${i + 1}`}</span>
+                  <span className="flex-1 font-bold text-white text-sm">{entry.name}</span>
+                  {entry.byJudge.length > 0 && (
+                    <div className="hidden sm:flex gap-1 flex-wrap justify-end max-w-xs">
+                      {entry.byJudge.map((j, ji) => (
+                        <span key={ji} className="text-[10px] px-2 py-0.5 bg-void-800 border border-white/10 rounded-full text-slate-400 font-mono">{j.email.split('@')[0]}: {j.total}</span>
+                      ))}
+                    </div>
+                  )}
+                  <div className="text-right ml-2">
+                    <p className="text-2xl font-display font-bold text-brand-400 leading-none">{entry.avg % 1 === 0 ? entry.avg : entry.avg.toFixed(1)}</p>
+                    <p className="text-[10px] text-slate-500 mt-0.5">{entry.judges > 0 ? `avg of ${entry.judges} judge${entry.judges > 1 ? 's' : ''}` : 'manual'}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          );
+        })()}
+
+        {/* Manual entry */}
+        <div className="border-t border-white/10 pt-4">
+          <p className="text-xs text-slate-500 uppercase tracking-widest mb-3">Add manual entry</p>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={manualName}
+              onChange={(e) => setManualName(e.target.value)}
+              placeholder="Team name"
+              className="flex-1 bg-void-950 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-brand-500 placeholder-slate-600"
+            />
+            <input
+              type="number"
+              value={manualScore}
+              onChange={(e) => setManualScore(e.target.value)}
+              placeholder="Score"
+              min={0}
+              max={100}
+              className="w-24 bg-void-950 border border-white/10 rounded-lg px-3 py-2 text-white text-sm text-center focus:outline-none focus:border-brand-500"
+            />
+            <button
+              onClick={() => {
+                const s = parseFloat(manualScore);
+                if (!manualName.trim() || isNaN(s)) return;
+                setManualResults((prev) => [...prev, { id: Date.now(), name: manualName.trim(), score: s }]);
+                setManualName('');
+                setManualScore('');
+              }}
+              className="px-4 py-2 bg-brand-500 text-black font-bold rounded-lg text-sm hover:bg-brand-400 transition-colors whitespace-nowrap"
+            >
+              + Add
+            </button>
+          </div>
+          {manualResults.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {manualResults.map((m) => (
+                <span key={m.id} className="flex items-center gap-1.5 px-3 py-1 bg-void-800 border border-white/10 rounded-full text-sm text-slate-300">
+                  {m.name}: {m.score}
+                  <button onClick={() => setManualResults((prev) => prev.filter((x) => x.id !== m.id))} className="text-slate-500 hover:text-red-400 ml-0.5">
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* Judge Evaluations */}
       <div className="glass-card p-6 rounded-2xl">
