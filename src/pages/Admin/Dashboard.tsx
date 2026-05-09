@@ -267,7 +267,7 @@ export default function AdminDashboard() {
     } catch { /* toasted */ } finally { setCreatingJudge(false); }
   };
 
-  const WEIGHTS: Record<string, number> = { costEffectiveness: 35, medicalImpact: 30, feasibility: 20, technicalExecution: 15 };
+  const WEIGHTS: Record<string, number> = { innovation: 20, feasibility: 20, impact: 25, ethicsAndSafety: 20, presentationAndClarity: 15 };
 
   // ── Tab renders ───────────────────────────────────────────────────────────
   const renderDashboard = () => (
@@ -545,7 +545,7 @@ export default function AdminDashboard() {
         ) : (
           <div className="space-y-4">
             {scores.map((score) => {
-              const total = score.costEffectiveness + score.medicalImpact + score.feasibility + score.technicalExecution;
+              const total = score.innovation + score.feasibility + score.impact + score.ethicsAndSafety + score.presentationAndClarity;
               const isEditing = editingScoreId === score.id;
               return (
                 <div key={score.id} className="border border-white/10 rounded-xl p-4 bg-void-950/30">
@@ -568,7 +568,7 @@ export default function AdminDashboard() {
                   {isEditing ? (
                     <div className="space-y-3 mt-4">
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        {(['costEffectiveness', 'medicalImpact', 'feasibility', 'technicalExecution'] as const).map((crit) => (
+                        {(['innovation', 'feasibility', 'impact', 'ethicsAndSafety', 'presentationAndClarity'] as const).map((crit) => (
                           <div key={crit}>
                             <label className="text-[10px] text-slate-500 uppercase">{crit} (/{WEIGHTS[crit]})</label>
                             <input

@@ -127,10 +127,11 @@ export const judgeGetMyScores = () =>
 // ─── Scores ───────────────────────────────────────────────────────────────────
 export const submitScore = (data: {
   teamId: string;
-  costEffectiveness: number;
-  medicalImpact: number;
+  innovation: number;
   feasibility: number;
-  technicalExecution: number;
+  impact: number;
+  ethicsAndSafety: number;
+  presentationAndClarity: number;
   note: string;
 }) =>
   apiFetch<JudgeScoreRecord>('/api/scores', {
@@ -245,10 +246,11 @@ export interface AppStateResponse {
 
 export interface ScoreData {
   id?: string;
-  costEffectiveness: number;
-  medicalImpact: number;
+  innovation: number;
   feasibility: number;
-  technicalExecution: number;
+  impact: number;
+  ethicsAndSafety: number;
+  presentationAndClarity: number;
   note: string;
 }
 
@@ -256,10 +258,11 @@ export interface JudgeScoreRecord {
   id: string;
   judgeId: string;
   teamId: string;
-  costEffectiveness: number;
-  medicalImpact: number;
+  innovation: number;
   feasibility: number;
-  technicalExecution: number;
+  impact: number;
+  ethicsAndSafety: number;
+  presentationAndClarity: number;
   note: string;
   judge: { id: string; email: string; name: string };
   team: { id: string; name: string };

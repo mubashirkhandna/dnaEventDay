@@ -27,7 +27,7 @@ export default async function handler(_req: NextApiRequest, res: NextApiResponse
   for (const s of scores) {
     const email = s.judge.email;
     if (!judgeScores[email]) judgeScores[email] = {};
-    judgeScores[email][s.teamId] = { id: s.id, costEffectiveness: s.costEffectiveness, medicalImpact: s.medicalImpact, feasibility: s.feasibility, technicalExecution: s.technicalExecution, note: s.note };
+    judgeScores[email][s.teamId] = { id: s.id, innovation: s.innovation, feasibility: s.feasibility, impact: s.impact, ethicsAndSafety: s.ethicsAndSafety, presentationAndClarity: s.presentationAndClarity, note: s.note };
   }
 
   const scoreRequestsMap: Record<string, string> = {};

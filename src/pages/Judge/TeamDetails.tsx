@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getStore, AppState } from '../../lib/store';
 import { submitScore, requestScoreAccess, ScoreData, Team } from '../../lib/api';
 import { withToast } from '../../lib/toast';
-import { ArrowLeft, Presentation, CheckCircle2, AlertTriangle, Loader2, Download, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Presentation, CheckCircle2, AlertTriangle, Loader2, ExternalLink } from 'lucide-react';
 import PitchDeckViewer from '../../components/PitchDeckViewer';
 
 export default function JudgeTeamDetails() {
@@ -17,8 +17,8 @@ export default function JudgeTeamDetails() {
   const judgeEmail = localStorage.getItem('judge_email') || '';
 
   const [scores, setScores] = useState<ScoreData>({
-    costEffectiveness: 0, medicalImpact: 0, feasibility: 0,
-    technicalExecution: 0, note: '',
+    innovation: 0, feasibility: 0, impact: 0,
+    ethicsAndSafety: 0, presentationAndClarity: 0, note: '',
   });
 
   useEffect(() => {
@@ -49,7 +49,7 @@ export default function JudgeTeamDetails() {
   }
 
   const CRITERIA_WEIGHTS: Record<string, number> = {
-    costEffectiveness: 35, medicalImpact: 30, feasibility: 20, technicalExecution: 15,
+    innovation: 20, feasibility: 20, impact: 25, ethicsAndSafety: 20, presentationAndClarity: 15,
   };
 
   const handleScoreChange = (field: keyof ScoreData, value: string) => {
@@ -258,10 +258,11 @@ export default function JudgeTeamDetails() {
 
             <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar">
               {[
-                { key: 'costEffectiveness', label: 'Cost-Effectiveness ("Budget Genius" Factor)', max: 35 },
-                { key: 'medicalImpact', label: 'Medical Impact ("Life-Saving" Factor)', max: 30 },
-                { key: 'feasibility', label: 'Feasibility & Scalability ("Rural Readiness" Factor)', max: 20 },
-                { key: 'technicalExecution', label: 'Technical Execution ("Professional" Factor)', max: 15 },
+                { key: 'innovation', label: 'Innovation', max: 20 },
+                { key: 'feasibility', label: 'Feasibility', max: 20 },
+                { key: 'impact', label: 'Impact', max: 25 },
+                { key: 'ethicsAndSafety', label: 'Ethics & Safety', max: 20 },
+                { key: 'presentationAndClarity', label: 'Presentation & Clarity', max: 15 },
               ].map((criteria) => (
                 <div key={criteria.key} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-void-950/50 p-4 rounded-xl border border-white/5">
                   <label className="text-sm font-medium text-slate-300">{criteria.label}</label>

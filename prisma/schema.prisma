@@ -76,10 +76,11 @@ model JudgeScore {
   judgeId            String
   team               Team     @relation(fields: [teamId], references: [id])
   teamId             String
-  costEffectiveness  Int
-  medicalImpact      Int
-  feasibility        Int
-  technicalExecution Int
+  innovation             Int
+  feasibility            Int
+  impact                 Int
+  ethicsAndSafety        Int
+  presentationAndClarity Int
   note               String   @default("")
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt

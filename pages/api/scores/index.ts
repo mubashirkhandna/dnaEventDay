@@ -7,7 +7,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!judge) return;
   if (req.method !== 'POST') return res.status(405).end();
   const judgeId = judge.judgeId as string;
-  const { teamId, costEffectiveness, medicalImpact, feasibility, technicalExecution, note } = req.body;
+  const { teamId, innovation, feasibility, impact, ethicsAndSafety, presentationAndClarity, note } = req.body;
   const team = await prisma.team.findUnique({ where: { id: teamId } });
   if (!team) return res.status(404).json({ error: 'Team not found' });
   let canScore = team.status === 'PRESENTING';
@@ -16,11 +16,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     canScore = request?.status === 'APPROVED';
   }
   if (!canScore) return res.status(403).json({ error: 'You do not have access to score this team right now' });
-  const ce = Number(costEffectiveness), mi = Number(medicalImpact), fe = Number(feasibility), te = Number(technicalExecution);
-  if (ce < 0 || ce > 35) return res.status(400).json({ error: 'costEffectiveness must be 0-35' });
-  if (mi < 0 || mi > 30) return res.status(400).json({ error: 'medicalImpact must be 0-30' });
+  const inn = Number(innovation), fe = Number(feasibility), imp = Number(impact), eth = Number(ethicsAndSafety), pres = Number(presentationAndClarity);
+  if (inn < 0 || inn > 20) return res.status(400).json({ error: 'innovation must be 0-20' });
   if (fe < 0 || fe > 20) return res.status(400).json({ error: 'feasibility must be 0-20' });
-  if (te < 0 || te > 15) return res.status(400).json({ error: 'technicalExecution must be 0-15' });
-  const score = await prisma.judgeScore.upsert({ where: { judgeId_teamId: { judgeId, teamId } }, update: { costEffectiveness: ce, medicalImpact: mi, feasibility: fe, technicalExecution: te, note: note || '' }, create: { judgeId, teamId, costEffectiveness: ce, medicalImpact: mi, feasibility: fe, technicalExecution: te, note: note || '' }, include: { team: { select: { id: true, name: true } } } });
+  if (imp < 0 || imp > 25) return res.status(400).json({ error: 'impact must be 0-25' });
+  if (eth < 0 || eth > 20) return res.status(400).json({ error: 'ethicsAndSafety must be 0-20' });
+  if (pres < 0 || pres > 15) return res.status(400).json({ error: 'presentationAndClarity must be 0-15' });
+  const score = await prisma.judgeScore.upsert({ where: { judgeId_teamId: { judgeId, teamId } }, update: { innovation: inn, feasibility: fe, impact: imp, ethicsAndSafety: eth, presentationAndClarity: pres, note: note || '' }, create: { judgeId, teamId, innovation: inn, feasibility: fe, impact: imp, ethicsAndSafety: eth, presentationAndClarity: pres, note: note || '' }, include: { team: { select: { id: true, name: true } } } });
   res.json(score);
 }
