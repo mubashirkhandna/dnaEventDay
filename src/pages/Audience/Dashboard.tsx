@@ -60,9 +60,19 @@ export default function AudienceDashboard() {
           Audience <span className="text-brand-400">Choice</span>
         </h2>
         <p className="text-slate-400 text-sm mb-2">Top 12 teams — live standings</p>
-        <div className="inline-flex items-center gap-2 bg-brand-500/10 border border-brand-500/30 px-4 py-1.5 rounded-full">
-          <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse" />
-          <span className="text-brand-400 font-mono text-sm font-bold">{totalVotes} votes cast</span>
+        <div className="flex flex-col items-center gap-3">
+          <div className="inline-flex items-center gap-2 bg-brand-500/10 border border-brand-500/30 px-4 py-1.5 rounded-full">
+            <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse" />
+            <span className="text-brand-400 font-mono text-sm font-bold">{totalVotes} votes cast</span>
+          </div>
+          <a
+            href="/hello-kitty/race"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-5 py-2 bg-brand-500 hover:bg-brand-400 text-black font-bold rounded-xl transition-colors shadow-[0_0_16px_rgba(20,184,166,0.35)] text-sm"
+          >
+            🏁 Watch Live Race
+          </a>
         </div>
       </div>
 
