@@ -2,6 +2,19 @@ import { useState, useEffect } from 'react';
 import { getStore, initStore, AppState } from '../../lib/store';
 import { motion } from 'framer-motion';
 
+const TEAM_INSTITUTIONS: Record<string, string> = {
+  'DNA-7776': 'CUET', 'DNA-1058': 'CUET', 'DNA-9480': 'Chittagong Medical College',
+  'DNA-8007': "Cox's Bazar Medical College", 'DNA-9804': 'Chittagong Medical College',
+  'DNA-4795': 'PCIU', 'DNA-8629': 'CUET', 'DNA-8505': 'Chittagong Medical College',
+  'DNA-6684': 'CUET', 'DNA-8241': 'Chittagong Medical College', 'DNA-9506': 'Chittagong Medical College',
+  'DNA-3525': 'BAIUST', 'DNA-4961': 'CUET', '0J1K6C6X': 'University of Chittagong',
+  'DNA-3212': 'University of Chittagong', 'DNA-8708': 'Chittagong Medical College',
+  'DNA-8183': 'Chittagong Medical College', 'DNA-6466': 'IAHS', 'DNA-6438': 'CUET',
+  'DNA-5481': 'Maa O Shishu Hospital Medical College', 'DNA-4691': 'Chittagong Medical College',
+  'DNA-5702': 'CUET', 'DNA-1190': 'Chittagong Medical College', 'DNA-9443': 'Chittagong Medical College',
+  'DNA-5627': 'Chittagong Medical College',
+};
+
 const TEAM_LEADER_PHOTOS: Record<string, string> = {
   'DNA-7776': 'https://res.cloudinary.com/dtnyglz2z/image/upload/v1777371906/gqyh1ajrptduflsrdrfi.jpg',
   'DNA-1058': 'https://res.cloudinary.com/dtnyglz2z/image/upload/v1777825352/fhbw1deui0qqds2cgnae.jpg',
@@ -134,9 +147,10 @@ export default function RaceLive() {
 
               {/* Name + vote count */}
               <div className="absolute right-4 z-30 flex items-center gap-3">
-                <span className="text-slate-300 font-medium text-sm hidden sm:block truncate max-w-[9rem]">
-                  {team.name}
-                </span>
+                <div className="hidden sm:block text-right max-w-[10rem]">
+                  <p className="text-slate-300 font-medium text-sm truncate">{team.name}</p>
+                  {TEAM_INSTITUTIONS[team.teamCode || ''] && <p className="text-[10px] text-slate-600 truncate">{TEAM_INSTITUTIONS[team.teamCode || '']}</p>}
+                </div>
                 <span className={`font-display font-bold text-2xl tabular-nums ${isLeader ? 'text-brand-400' : 'text-white'}`}>
                   {team.uniqueVotes}
                 </span>

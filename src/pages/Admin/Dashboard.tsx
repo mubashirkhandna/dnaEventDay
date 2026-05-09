@@ -16,6 +16,34 @@ import { motion, AnimatePresence, Reorder } from 'framer-motion';
 
 type Tab = 'dashboard' | 'judgement' | 'quiz' | 'audience' | 'judges';
 
+const TEAM_INSTITUTIONS: Record<string, string> = {
+  'DNA-7776': 'CUET',
+  'DNA-1058': 'CUET',
+  'DNA-9480': 'Chittagong Medical College',
+  'DNA-8007': "Cox's Bazar Medical College",
+  'DNA-9804': 'Chittagong Medical College',
+  'DNA-4795': 'PCIU',
+  'DNA-8629': 'CUET',
+  'DNA-8505': 'Chittagong Medical College',
+  'DNA-6684': 'CUET',
+  'DNA-8241': 'Chittagong Medical College',
+  'DNA-9506': 'Chittagong Medical College',
+  'DNA-3525': 'BAIUST',
+  'DNA-4961': 'CUET',
+  '0J1K6C6X': 'University of Chittagong',
+  'DNA-3212':  'University of Chittagong',
+  'DNA-8708': 'Chittagong Medical College',
+  'DNA-8183': 'Chittagong Medical College',
+  'DNA-6466': 'IAHS',
+  'DNA-6438': 'CUET',
+  'DNA-5481': 'Maa O Shishu Hospital Medical College',
+  'DNA-4691': 'Chittagong Medical College',
+  'DNA-5702': 'CUET',
+  'DNA-1190': 'Chittagong Medical College',
+  'DNA-9443': 'Chittagong Medical College',
+  'DNA-5627': 'Chittagong Medical College',
+};
+
 // First photo from "Team Photos (URLs)" column in dna-hack-registrations.csv, keyed by team code
 const TEAM_LEADER_PHOTOS: Record<string, string> = {
   'DNA-7776': 'https://res.cloudinary.com/dtnyglz2z/image/upload/v1777371906/gqyh1ajrptduflsrdrfi.jpg',      // AXION
@@ -548,16 +576,17 @@ export default function AdminDashboard() {
 
         {/* Computed averages from actual scores */}
         {(() => {
-          const teamMap: Record<string, { name: string; totals: number[]; byJudge: { email: string; total: number }[] }> = {};
+          const teamCodeMap: Record<string, string> = Object.fromEntries(state.teams.map(t => [t.id, t.teamCode || '']));
+          const teamMap: Record<string, { name: string; code: string; totals: number[]; byJudge: { email: string; total: number }[] }> = {};
           for (const s of scores) {
             const total = s.innovation + s.feasibility + s.impact + s.ethicsAndSafety + s.presentationAndClarity;
-            if (!teamMap[s.teamId]) teamMap[s.teamId] = { name: s.team.name, totals: [], byJudge: [] };
+            if (!teamMap[s.teamId]) teamMap[s.teamId] = { name: s.team.name, code: teamCodeMap[s.teamId] || '', totals: [], byJudge: [] };
             teamMap[s.teamId].totals.push(total);
             teamMap[s.teamId].byJudge.push({ email: s.judge.email, total });
           }
           const ranked = Object.entries(teamMap)
-            .map(([, v]) => ({ name: v.name, avg: v.totals.reduce((a, b) => a + b, 0) / v.totals.length, judges: v.totals.length, byJudge: v.byJudge }))
-            .concat(manualResults.map((m) => ({ name: `${m.name} ★`, avg: m.score, judges: 0, byJudge: [] })))
+            .map(([, v]) => ({ name: v.name, code: v.code, institution: TEAM_INSTITUTIONS[v.code] || '', avg: v.totals.reduce((a, b) => a + b, 0) / v.totals.length, judges: v.totals.length, byJudge: v.byJudge }))
+            .concat(manualResults.map((m) => ({ name: `${m.name} ★`, code: '', institution: '', avg: m.score, judges: 0, byJudge: [] })))
             .sort((a, b) => b.avg - a.avg);
 
           const medals = ['🥇', '🥈', '🥉'];
@@ -569,7 +598,10 @@ export default function AdminDashboard() {
               {ranked.map((entry, i) => (
                 <div key={entry.name + i} className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition-all ${i === 0 ? 'bg-yellow-500/10 border-yellow-500/30' : i === 1 ? 'bg-slate-400/5 border-slate-400/20' : i === 2 ? 'bg-amber-700/10 border-amber-700/20' : 'bg-void-950/30 border-white/5'}`}>
                   <span className="text-xl w-8 text-center">{medals[i] ?? `#${i + 1}`}</span>
-                  <span className="flex-1 font-bold text-white text-sm">{entry.name}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-white text-sm truncate">{entry.name}</p>
+                    {entry.institution && <p className="text-[10px] text-slate-500 truncate">{entry.institution}</p>}
+                  </div>
                   {entry.byJudge.length > 0 && (
                     <div className="hidden sm:flex gap-1 flex-wrap justify-end max-w-xs">
                       {entry.byJudge.map((j, ji) => (
