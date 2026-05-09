@@ -20,6 +20,7 @@ import QuizTake from './pages/Quiz/Take';
 // Admin
 import AdminLogin from './pages/Admin/Login';
 import AdminDashboard from './pages/Admin/Dashboard';
+import RaceLive from './pages/Admin/RaceLive';
 
 const AnimatedRoutes = () => {
   const location = useLocation();
@@ -46,6 +47,7 @@ const AnimatedRoutes = () => {
           {/* Admin Routes */}
           <Route path="/hello-kitty" element={<PageTransition><AdminLogin /></PageTransition>} />
           <Route path="/hello-kitty/dashboard" element={<PageTransition><AdminDashboard /></PageTransition>} />
+          <Route path="/hello-kitty/race" element={<RaceLive />} />
           
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>

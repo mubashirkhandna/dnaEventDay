@@ -801,6 +801,18 @@ export default function AdminDashboard() {
 
     return (
       <div className="space-y-8">
+        {/* Open race in new tab */}
+        <div className="flex justify-end">
+          <a
+            href="/hello-kitty/race"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 px-5 py-2.5 bg-brand-500 text-black font-bold rounded-xl hover:bg-brand-400 transition-colors shadow-[0_0_20px_rgba(20,184,166,0.3)] text-sm"
+          >
+            <FastForward className="w-4 h-4" /> Open Race in New Tab
+          </a>
+        </div>
+
         {/* Vote totals */}
         <div className="flex gap-4 flex-wrap">
           <div className="glass-card px-6 py-4 rounded-2xl flex items-center gap-4">
