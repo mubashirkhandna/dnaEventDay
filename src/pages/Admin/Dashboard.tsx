@@ -69,8 +69,6 @@ export default function AdminDashboard() {
   // Generic loading flag for action buttons
   const [busy, setBusy] = useState<string | null>(null);
 
-  const [isFullscreen, setIsFullscreen] = useState(false);
-
   // Judgment results manual entries
   const [manualResults, setManualResults] = useState<{ id: number; name: string; score: number }[]>([]);
   const [manualName, setManualName] = useState('');
@@ -797,117 +795,76 @@ export default function AdminDashboard() {
       uniqueVotes: state.audienceVoteTotals[t.id]?.unique || 0,
     })).sort((a, b) => b.uniqueVotes - a.uniqueVotes);
 
-    if (isFullscreen) {
-      const totalVotesCast = teamsWithVotes.reduce((sum, t) => sum + t.uniqueVotes, 0);
-      const maxVotes = Math.max(...teamsWithVotes.map((t) => t.uniqueVotes), 1);
-
-      return (
-        <div className="fixed inset-0 z-[100] bg-void-950 flex flex-col items-center justify-center p-8 overflow-hidden">
-          <button
-            onClick={() => setIsFullscreen(false)}
-            className="absolute top-6 right-8 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg backdrop-blur z-50 text-sm"
-          >
-            Exit Fullscreen
-          </button>
-
-          {/* Header */}
-          <div className="text-center mb-8">
-            <h2 className="text-4xl md:text-5xl font-display font-bold text-white text-glow tracking-widest uppercase">
-              Live Race: Audience Choice
-            </h2>
-            <div className="mt-3 flex items-center justify-center gap-2">
-              <span className="text-slate-400 text-lg">Total Votes Cast:</span>
-              <span className="text-4xl font-display font-bold text-brand-400 text-glow">
-                {totalVotesCast}
-              </span>
-            </div>
-          </div>
-
-          {/* Race tracks */}
-          <div className="w-full max-w-6xl space-y-5 relative">
-            {/* Finish line */}
-            <div className="absolute top-0 bottom-0 right-[8%] border-r-4 border-dashed border-white/20 z-0 pointer-events-none" />
-
-            {teamsWithVotes.slice(0, 12).map((team, rank) => {
-              const pct = Math.min((team.uniqueVotes / maxVotes) * 88, 88);
-              const leaderPhoto = TEAM_LEADER_PHOTOS[team.teamCode || ''] || team.members[0]?.photoUrl || '';
-              const isLeader = rank === 0 && team.uniqueVotes > 0;
-
-              return (
-                <div
-                  key={team.id}
-                  className="relative z-10 w-full h-[4.5rem] bg-void-900/50 rounded-full border border-white/5 overflow-visible flex items-center"
-                >
-                  {/* Progress bar */}
-                  <motion.div
-                    initial={{ width: '0%' }}
-                    animate={{ width: `${pct}%` }}
-                    transition={{ type: 'spring', stiffness: 40, damping: 18 }}
-                    className={`absolute left-0 top-1/2 -translate-y-1/2 h-2 rounded-r-full z-10 ${isLeader ? 'bg-brand-500 shadow-[0_0_16px_rgba(20,184,166,1)]' : 'bg-brand-500/40'}`}
-                  />
-
-                  {/* Team leader avatar */}
-                  <motion.div
-                    initial={{ left: '0%' }}
-                    animate={{ left: `calc(${pct}% - 1.75rem)` }}
-                    transition={{ type: 'spring', stiffness: 40, damping: 18 }}
-                    className={`absolute z-20 h-14 w-14 rounded-full overflow-hidden flex-shrink-0 border-2 ${isLeader ? 'border-brand-400 shadow-[0_0_24px_rgba(20,184,166,0.8)]' : 'border-white/30'} bg-void-800`}
-                    style={{ marginLeft: '0.5rem' }}
-                  >
-                    {leaderPhoto ? (
-                      <img src={leaderPhoto} alt={team.name} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-white font-bold text-lg">
-                        {team.name[0]}
-                      </div>
-                    )}
-                  </motion.div>
-
-                  {/* Team name + vote count label */}
-                  <div className="absolute right-4 z-30 flex items-center gap-3">
-                    <span className="text-slate-300 font-medium text-sm hidden md:block">{team.name}</span>
-                    <span className={`font-display font-bold text-xl tabular-nums ${isLeader ? 'text-brand-400' : 'text-white'}`}>
-                      {team.uniqueVotes}
-                      <span className="text-xs text-slate-500 font-normal ml-1">unique</span>
-                      <span className="text-xs text-slate-600 font-normal ml-1">/ {team.totalVotes}</span>
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      );
-    }
-
     const totalVotesCast = teamsWithVotes.reduce((sum, t) => sum + t.totalVotes, 0);
     const totalUniqueVotes = teamsWithVotes.reduce((sum, t) => sum + t.uniqueVotes, 0);
+    const maxVotes = Math.max(...teamsWithVotes.map((t) => t.uniqueVotes), 1);
 
     return (
       <div className="space-y-8">
-        <div className="flex items-center justify-between flex-wrap gap-4">
-          <div className="flex gap-4">
-            <div className="glass-card px-6 py-4 rounded-2xl flex items-center gap-4">
-              <Users className="w-6 h-6 text-brand-400" />
-              <div>
-                <p className="text-xs text-slate-500 uppercase tracking-widest">Unique IP Votes</p>
-                <p className="text-4xl font-display font-bold text-brand-400">{totalUniqueVotes}</p>
-              </div>
-            </div>
-            <div className="glass-card px-6 py-4 rounded-2xl flex items-center gap-4">
-              <Users className="w-6 h-6 text-emerald-400" />
-              <div>
-                <p className="text-xs text-slate-500 uppercase tracking-widest">Total Votes Cast</p>
-                <p className="text-4xl font-display font-bold text-emerald-400">{totalVotesCast}</p>
-              </div>
+        {/* Vote totals */}
+        <div className="flex gap-4 flex-wrap">
+          <div className="glass-card px-6 py-4 rounded-2xl flex items-center gap-4">
+            <Users className="w-6 h-6 text-brand-400" />
+            <div>
+              <p className="text-xs text-slate-500 uppercase tracking-widest">Unique IP Votes</p>
+              <p className="text-4xl font-display font-bold text-brand-400">{totalUniqueVotes}</p>
             </div>
           </div>
-          <button
-            onClick={() => setIsFullscreen(true)}
-            className="px-6 py-3 bg-brand-500 text-black font-bold rounded-xl hover:bg-brand-400 transition-colors flex items-center gap-2 shadow-[0_0_20px_rgba(20,184,166,0.3)]"
-          >
-            <FastForward className="w-5 h-5" /> Launch Live Race Animation
-          </button>
+          <div className="glass-card px-6 py-4 rounded-2xl flex items-center gap-4">
+            <Users className="w-6 h-6 text-emerald-400" />
+            <div>
+              <p className="text-xs text-slate-500 uppercase tracking-widest">Total Votes Cast</p>
+              <p className="text-4xl font-display font-bold text-emerald-400">{totalVotesCast}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Live Race Animation — inline, scrollable */}
+        <div className="glass-card p-6 rounded-2xl">
+          <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
+            <FastForward className="w-5 h-5 text-brand-400" /> Live Race: Audience Choice
+          </h3>
+          <p className="text-xs text-slate-500 mb-6">Sorted by unique votes. Updates in real-time.</p>
+          <div className="overflow-y-auto max-h-[70vh] pr-1 custom-scrollbar">
+            <div className="space-y-4 relative">
+              <div className="absolute top-0 bottom-0 right-[8%] border-r-2 border-dashed border-white/10 z-0 pointer-events-none" />
+              {teamsWithVotes.map((team, rank) => {
+                const pct = Math.min((team.uniqueVotes / maxVotes) * 88, 88);
+                const leaderPhoto = TEAM_LEADER_PHOTOS[team.teamCode || ''] || team.members[0]?.photoUrl || '';
+                const isLeader = rank === 0 && team.uniqueVotes > 0;
+                return (
+                  <div key={team.id} className="relative z-10 w-full h-16 bg-void-900/50 rounded-full border border-white/5 overflow-visible flex items-center">
+                    <motion.div
+                      initial={{ width: '0%' }}
+                      animate={{ width: `${pct}%` }}
+                      transition={{ type: 'spring', stiffness: 40, damping: 18 }}
+                      className={`absolute left-0 top-1/2 -translate-y-1/2 h-2 rounded-r-full z-10 ${isLeader ? 'bg-brand-500 shadow-[0_0_16px_rgba(20,184,166,1)]' : 'bg-brand-500/40'}`}
+                    />
+                    <motion.div
+                      initial={{ left: '0%' }}
+                      animate={{ left: `calc(${pct}% - 1.75rem)` }}
+                      transition={{ type: 'spring', stiffness: 40, damping: 18 }}
+                      className={`absolute z-20 h-12 w-12 rounded-full overflow-hidden flex-shrink-0 border-2 ${isLeader ? 'border-brand-400 shadow-[0_0_20px_rgba(20,184,166,0.8)]' : 'border-white/30'} bg-void-800`}
+                      style={{ marginLeft: '0.5rem' }}
+                    >
+                      {leaderPhoto ? (
+                        <img src={leaderPhoto} alt={team.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-white font-bold">{team.name[0]}</div>
+                      )}
+                    </motion.div>
+                    <div className="absolute right-4 z-30 flex items-center gap-2">
+                      <span className="text-slate-300 font-medium text-sm hidden sm:block truncate max-w-[8rem]">{team.name}</span>
+                      <span className={`font-display font-bold text-xl tabular-nums ${isLeader ? 'text-brand-400' : 'text-white'}`}>
+                        {team.uniqueVotes}
+                        <span className="text-xs text-slate-500 font-normal ml-1">/ {team.totalVotes}</span>
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
 
         <div className="glass-card p-6 rounded-2xl">
